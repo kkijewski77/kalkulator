@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             min-height: 100%;
-            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=MnwxfDB8MXxyYW5kb218MHx8Zmxvb2R8fHx8fHwxNjk1NTQ1MjIy&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080') no-repeat center center fixed;
+            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080') no-repeat center center fixed;
             background-size: cover;
         }
         .overlay {
@@ -42,7 +42,7 @@
             color: #ffffff;
             text-align: center;
             margin-bottom: 30px;
-            font-size: 2.5em;
+            font-size: 2em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         h2 {
@@ -50,14 +50,17 @@
             color: #333;
             border-bottom: 2px solid #007bff;
             padding-bottom: 10px;
+            font-size: 1.5em;
         }
         h3 {
             color: #007bff;
             margin-top: 20px;
+            font-size: 1.3em;
         }
         h4 {
             color: #333;
             margin-top: 15px;
+            font-size: 1.2em;
         }
         .form-group {
             margin-bottom: 15px;
@@ -66,13 +69,15 @@
             display: block;
             margin-bottom: 5px;
             color: #333;
+            font-size: 1em;
         }
         input[type="number"], select, textarea, input[type="email"], input[type="text"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 1em;
+            box-sizing: border-box;
         }
         input[type="checkbox"] {
             margin-right: 10px;
@@ -101,8 +106,9 @@
             padding: 15px 25px;
             border-radius: 4px;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 1em;
             margin-top: 20px;
+            text-align: center;
         }
         .cta-button:hover {
             background-color: #0056b3;
@@ -112,6 +118,7 @@
         }
         .section {
             margin-top: 40px;
+            width: 100%;
         }
         p {
             color: #fff;
@@ -124,8 +131,35 @@
             margin-left: 20px;
         }
         @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
             .card {
                 flex: 1 1 100%;
+            }
+            .cta-button {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+            h3 {
+                font-size: 1.1em;
+            }
+            h4 {
+                font-size: 1em;
+            }
+            label, input[type="number"], select, textarea, input[type="email"], input[type="text"] {
+                font-size: 0.9em;
+            }
+            .cta-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
             }
         }
         /* Styl dla popupu */
