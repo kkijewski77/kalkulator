@@ -175,6 +175,7 @@
             obszary.forEach(obszar => {
                 const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
                 polygon.setAttribute('points', obszar.points);
+                polygon.setAttribute('id', obszar.id);  // Added ID here for easier reference
                 polygon.setAttribute('fill', 'white');
                 polygon.setAttribute('stroke', 'black');
                 polygon.setAttribute('stroke-width', '2');
@@ -182,113 +183,4 @@
                 svg.appendChild(polygon);
 
                 const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                const [x, y] = obszar.points.split(' ')[0].split(',');
-                text.setAttribute('x', x);
-                text.setAttribute('y', y);
-                text.setAttribute('dy', '20');
-                text.setAttribute('dx', '5');
-                text.setAttribute('font-size', '12');
-                text.textContent = `${obszar.nazwa} (${obszar.powierzchnia} m²)`;
-                svg.appendChild(text);
-            });
-        }
-
-        function toggleObszar(id) {
-            zaznaczoneObszary[id] = !zaznaczoneObszary[id];
-            if (zaznaczoneObszary[id]) {
-                stopnieZalaniaObszarow[id] = 'lekkie';
-            } else {
-                delete stopnieZalaniaObszarow[id];
-            }
-            updateSVG();
-            updateStopnieZalania();
-            obliczKoszt();
-        }
-
-        function updateSVG() {
-            obszary.forEach(obszar => {
-                const polygon = document.querySelector(`polygon[points="${obszar.points}"]`);
-                polygon.setAttribute('fill', zaznaczoneObszary[obszar.id] ? 'red' : 'white');
-            });
-        }
-
-        function updateStopnieZalania() {
-            const container = document.getElementById('stopnie-zalania-container');
-            container.innerHTML = '';
-            Object.keys(zaznaczoneObszary).forEach(id => {
-                if (zaznaczoneObszary[id]) {
-                    const obszar = obszary.find(o => o.id === id);
-                    const div = document.createElement('div');
-                    div.className = 'form-group';
-                    div.innerHTML = `
-                        <label for="stopien-${id}">${obszar.nazwa} - Stopień zalania:</label>
-                        <select id="stopien-${id}" onchange="zmienStopienZalania('${id}', this.value)">
-                            ${stopnieZalania.map(stopien => 
-                                `<option value="${stopien.id}" ${stopnieZalaniaObszarow[id] === stopien.id ? 'selected' : ''}>
-                                    ${stopien.nazwa}
-                                </option>`
-                            ).join('')}
-                        </select>
-                    `;
-                    container.appendChild(div);
-                }
-            });
-        }
-
-        function zmienStopienZalania(id, stopien) {
-            stopnieZalaniaObszarow[id] = stopien;
-            obliczKoszt();
-        }
-
-        function obliczKoszt() {
-            const uzywaCalkowitejPowierzchni = document.getElementById('tryb-powierzchni').checked;
-            const calkowitaPowierzchnia = parseFloat(document.getElementById('calkowita-powierzchnia').value);
-            const cenaZaM2 = parseFloat(document.getElementById('cena-za-m2').value);
-
-            let koszt = obszary.reduce((suma, obszar) => {
-                if (zaznaczoneObszary[obszar.id]) {
-                    const stopien = stopnieZalaniaObszarow[obszar.id];
-                    const mnoznik = stopnieZalania.find(s => s.id === stopien).mnoznik;
-                    const powierzchnia = uzywaCalkowitejPowierzchni
-                        ? calkowitaPowierzchnia * obszar.powierzchniaProcentowa
-                        : obszar.powierzchnia;
-                    return suma + (powierzchnia * cenaZaM2 * mnoznik);
-                }
-                return suma;
-            }, 0);
-
-            // Dodatkowe koszty
-            const wybraneDodatkoweKoszty = Array.from(document.getElementById('dodatkowe-koszty').selectedOptions).map(option => option.value);
-            wybraneDodatkoweKoszty.forEach(koszt => {
-                if (dodatkoweKoszty[koszt]) {
-                    koszt += dodatkoweKoszty[koszt];
-                }
-            });
-
-            // Mnożnik za rodzaj uszkodzeń
-            const wybraneUszkodzenia = Array.from(document.getElementById('rodzaj-uszkodzen').selectedOptions).length;
-            const mnoznikUszkodzen = 1 + (wybraneUszkodzenia * 0.1); // Zwiększamy koszt o 10% za każdy rodzaj uszkodzenia
-
-            koszt *= mnoznikUszkodzen;
-
-            document.getElementById('koszt-naprawy').textContent = koszt.toFixed(2);
-        }
-
-        document.getElementById('tryb-powierzchni').onchange = function() {
-            document.getElementById('calkowita-powierzchnia-container').style.display = 
-                this.checked ? 'block' : 'none';
-            updateSVG();
-            obliczKoszt();
-        };
-
-        document.getElementById('calkowita-powierzchnia').oninput = obliczKoszt;
-        document.getElementById('cena-za-m2').oninput = obliczKoszt;
-        document.getElementById('rodzaj-uszkodzen').onchange = obliczKoszt;
-        document.getElementById('dodatkowe-koszty').onchange = obliczKoszt;
-
-        // Inicjalizacja
-        initializeSVG();
-        obliczKoszt();
-    </script>
-</body>
-</html>
+                const [x, y] =
