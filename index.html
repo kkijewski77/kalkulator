@@ -5,7 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Szkód Powodziowych</title>
     <style>
-        /* Tutaj umieść style CSS z poprzedniej wersji */
+        body, html {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8Zmxvb2R8fHx8fHwxNjk1MTQwNjA5&ixlib=rb-4.0.3&q=80&w=1080') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            flex: 1 1 45%;
+            min-width: 300px;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        svg {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            background-color: #ffffff;
+        }
+        polygon {
+            cursor: pointer;
+            transition: fill 0.3s;
+        }
+        polygon:hover {
+            opacity: 0.8;
+        }
+        #koszt-naprawy {
+            font-weight: bold;
+            color: #007bff;
+        }
+        @media (max-width: 768px) {
+            .card {
+                flex: 1 1 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -33,6 +119,25 @@
                 </div>
                 <div id="stopnie-zalania-container"></div>
                 <div class="form-group">
+                    <label for="rodzaj-uszkodzen">Rodzaj uszkodzeń:</label>
+                    <select id="rodzaj-uszkodzen" multiple>
+                        <option value="sciana">Uszkodzenia ścian</option>
+                        <option value="podloga">Uszkodzenia podłogi</option>
+                        <option value="instalacja">Uszkodzenia instalacji elektrycznej</option>
+                        <option value="meble">Uszkodzenia mebli</option>
+                        <option value="sprzet">Uszkodzenia sprzętu AGD/RTV</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dodatkowe-koszty">Dodatkowe koszty:</label>
+                    <select id="dodatkowe-koszty" multiple>
+                        <option value="osuszanie">Osuszanie pomieszczeń</option>
+                        <option value="dezynfekcja">Dezynfekcja</option>
+                        <option value="wywoz">Wywóz odpadów</option>
+                        <option value="ekspertyza">Ekspertyza techniczna</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <h3>Szacunkowy koszt naprawy: <span id="koszt-naprawy">0</span> zł</h3>
                 </div>
             </div>
@@ -54,6 +159,13 @@
             { id: 'umiarkowane', nazwa: 'Umiarkowane zalanie', mnoznik: 0.6 },
             { id: 'ciezkie', nazwa: 'Ciężkie zalanie', mnoznik: 1 },
         ];
+
+        const dodatkoweKoszty = {
+            osuszanie: 1000,
+            dezynfekcja: 500,
+            wywoz: 800,
+            ekspertyza: 1500
+        };
 
         let zaznaczoneObszary = {};
         let stopnieZalaniaObszarow = {};
@@ -133,7 +245,7 @@
             const calkowitaPowierzchnia = parseFloat(document.getElementById('calkowita-powierzchnia').value);
             const cenaZaM2 = parseFloat(document.getElementById('cena-za-m2').value);
 
-            const koszt = obszary.reduce((suma, obszar) => {
+            let koszt = obszary.reduce((suma, obszar) => {
                 if (zaznaczoneObszary[obszar.id]) {
                     const stopien = stopnieZalaniaObszarow[obszar.id];
                     const mnoznik = stopnieZalania.find(s => s.id === stopien).mnoznik;
@@ -144,6 +256,20 @@
                 }
                 return suma;
             }, 0);
+
+            // Dodatkowe koszty
+            const wybraneDodatkoweKoszty = Array.from(document.getElementById('dodatkowe-koszty').selectedOptions).map(option => option.value);
+            wybraneDodatkoweKoszty.forEach(koszt => {
+                if (dodatkoweKoszty[koszt]) {
+                    koszt += dodatkoweKoszty[koszt];
+                }
+            });
+
+            // Mnożnik za rodzaj uszkodzeń
+            const wybraneUszkodzenia = Array.from(document.getElementById('rodzaj-uszkodzen').selectedOptions).length;
+            const mnoznikUszkodzen = 1 + (wybraneUszkodzenia * 0.1); // Zwiększamy koszt o 10% za każdy rodzaj uszkodzenia
+
+            koszt *= mnoznikUszkodzen;
 
             document.getElementById('koszt-naprawy').textContent = koszt.toFixed(2);
         }
@@ -157,6 +283,8 @@
 
         document.getElementById('calkowita-powierzchnia').oninput = obliczKoszt;
         document.getElementById('cena-za-m2').oninput = obliczKoszt;
+        document.getElementById('rodzaj-uszkodzen').onchange = obliczKoszt;
+        document.getElementById('dodatkowe-koszty').onchange = obliczKoszt;
 
         // Inicjalizacja
         initializeSVG();
