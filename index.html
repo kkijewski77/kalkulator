@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Szkód Powodziowych - Sprawdź wycenę ubezpieczyciela</title>
     <style>
-        /* Twój kod CSS pozostaje bez zmian */
         body, html {
             font-family: 'Arial', sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 0;
             min-height: 100%;
-            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8Zmxvb2R8fHx8fHwxNjk1MTQwNjA5&ixlib=rb-4.0.3&q=80&w=1080') no-repeat center center fixed;
+            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=MnwxfDB8MXxyYW5kb218MHx8Zmxvb2R8fHx8fHwxNjk1MTQwNjA5&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080') no-repeat center center fixed;
             background-size: cover;
         }
         .overlay {
@@ -60,7 +59,7 @@
             margin-bottom: 5px;
             color: #333;
         }
-        input[type="number"], select, textarea {
+        input[type="number"], select, textarea, input[type="email"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -114,6 +113,22 @@
             .card {
                 flex: 1 1 100%;
             }
+        }
+        /* Styl dla popupu */
+        #email-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        #email-popup .overlay {
+            background-color: transparent;
         }
     </style>
 </head>
@@ -193,7 +208,7 @@
                 <div class="form-group">
                     <h3>Szacunkowy koszt naprawy: <span id="koszt-naprawy">0</span> zł</h3>
                 </div>
-                <a href="#" id="skontaktuj-sie" class="cta-button">Skontaktuj się z ekspertem</a>
+                <a href="#kontakt" class="cta-button">Skontaktuj się z ekspertem</a>
             </div>
         </div>
 
@@ -216,7 +231,47 @@
 
         <!-- Pozostała część strony -->
         <div class="container section">
-            <!-- Tutaj pozostaje reszta Twojej treści, np. sekcja "Dlaczego warto skorzystać z naszego kalkulatora?", "Skontaktuj się z nami", "Najczęściej zadawane pytania" itd. -->
+            <div class="card full-width">
+                <h2>Dlaczego warto skorzystać z naszego kalkulatora?</h2>
+                <ul>
+                    <li><strong>Precyzyjna wycena:</strong> Uwzględniamy różne rodzaje uszkodzeń i dodatkowe koszty.</li>
+                    <li><strong>Niezależność:</strong> Porównaj wycenę z ofertą ubezpieczyciela.</li>
+                    <li><strong>Łatwość użycia:</strong> Intuicyjny interfejs i szybkie wyniki.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container section" id="kontakt">
+            <div class="card full-width">
+                <h2>Skontaktuj się z nami</h2>
+                <p>Jeśli masz pytania lub potrzebujesz pomocy w procesie odszkodowawczym, nasi eksperci są do Twojej dyspozycji.</p>
+                <form>
+                    <div class="form-group">
+                        <label for="imie">Imię:</label>
+                        <input type="text" id="imie" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-kontakt">E-mail:</label>
+                        <input type="email" id="email-kontakt" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wiadomosc">Wiadomość:</label>
+                        <textarea id="wiadomosc" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="cta-button">Wyślij wiadomość</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="container section">
+            <div class="card full-width">
+                <h2>Najczęściej zadawane pytania</h2>
+                <h3>Jak dokładny jest kalkulator?</h3>
+                <p>Nasz kalkulator dostarcza szacunkowej wyceny kosztów naprawy, jednak ostateczna cena może różnić się w zależności od indywidualnych warunków.</p>
+                <h3>Czy mogę użyć wyceny w negocjacjach z ubezpieczycielem?</h3>
+                <p>Tak, wycena może być pomocna w rozmowach z ubezpieczycielem, aby upewnić się, że otrzymasz sprawiedliwe odszkodowanie.</p>
+                <!-- Dodaj więcej pytań i odpowiedzi w razie potrzeby -->
+            </div>
         </div>
     </div>
 
@@ -423,7 +478,7 @@
 
         function showEmailPopup() {
             const popup = document.getElementById('email-popup');
-            popup.style.display = 'block';
+            popup.style.display = 'flex';
         }
 
         document.getElementById('email-form').addEventListener('submit', function(event) {
