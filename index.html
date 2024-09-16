@@ -6,6 +6,115 @@
     <title>Kalkulator Szkód Powodziowych - Sprawdź wycenę ubezpieczyciela</title>
     <style>
         /* Twój kod CSS pozostaje bez zmian */
+        body, html {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8Zmxvb2R8fHx8fHwxNjk1MTQwNjA5&ixlib=rb-4.0.3&q=80&w=1080') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            flex: 1 1 45%;
+            min-width: 300px;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="number"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        svg {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            background-color: #ffffff;
+        }
+        polygon {
+            cursor: pointer;
+            transition: fill 0.3s;
+        }
+        polygon:hover {
+            opacity: 0.8;
+        }
+        #koszt-naprawy {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px 25px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+        .full-width {
+            flex: 1 1 100%;
+        }
+        .section {
+            margin-top: 40px;
+        }
+        p {
+            color: #fff;
+            font-size: 1.1em;
+        }
+        @media (max-width: 768px) {
+            .card {
+                flex: 1 1 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -107,7 +216,7 @@
 
         <!-- Pozostała część strony -->
         <div class="container section">
-            <!-- Treść pozostaje bez zmian -->
+            <!-- Tutaj pozostaje reszta Twojej treści, np. sekcja "Dlaczego warto skorzystać z naszego kalkulatora?", "Skontaktuj się z nami", "Najczęściej zadawane pytania" itd. -->
         </div>
     </div>
 
@@ -139,7 +248,7 @@
         function generateObszary() {
             obszary = [];
             const totalWidth = 300;
-            const roomWidth = totalWidth / liczbaPokoi;
+            const roomWidth = (totalWidth - 20) / liczbaPokoi;
             for (let i = 0; i < liczbaPokoi; i++) {
                 const id = `pokoj${i+1}`;
                 const nazwa = `Pokój ${i+1}`;
@@ -214,15 +323,15 @@
         }
 
         function toggleObszar(id) {
-            const obszar = document.getElementById(id);
+            const obszarElement = document.getElementById(id);
             if (zaznaczoneObszary[id]) {
-                obszar.setAttribute('fill', 'white');
+                obszarElement.setAttribute('fill', 'white');
                 delete zaznaczoneObszary[id];
                 delete stopnieZalaniaObszarow[id];
                 const element = document.getElementById(`stopien-${id}`);
                 if (element) element.remove();
             } else {
-                obszar.setAttribute('fill', 'yellow');
+                obszarElement.setAttribute('fill', 'yellow');
                 zaznaczoneObszary[id] = true;
                 createStopienZalaniaSelect(id);
             }
