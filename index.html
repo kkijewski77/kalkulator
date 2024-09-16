@@ -10,18 +10,113 @@
 </head>
 <body>
     <div class="overlay">
-        <!-- Treść HTML pozostaje bez zmian -->
+        <h1>Kalkulator Szkód Powodziowych</h1>
+        <p>Sprawdź, czy wycena Twojego ubezpieczyciela nie jest zaniżona</p>
+        <a href="#kalkulator" class="cta-button">Przejdź do kalkulatora</a>
+        
+        <div class="container section">
+            <div class="card full-width">
+                <h2>Jak działa nasz kalkulator?</h2>
+                <p>Nasz kalkulator pozwala oszacować koszty naprawy mieszkania po powodzi. Weź pod uwagę różne rodzaje uszkodzeń, dodatkowe koszty oraz typ mieszkania, aby uzyskać jak najdokładniejszą wycenę.</p>
+            </div>
+        </div>
+
+        <div class="container section" id="kalkulator">
+            <div class="card">
+                <h2>Szkic mieszkania</h2>
+                <svg viewBox="0 0 310 260" id="mieszkanie-svg"></svg>
+            </div>
+            <div class="card">
+                <h2>Kalkulator szkód</h2>
+                <div class="form-group">
+                    <label for="liczba-pokoi">Liczba pokoi:</label>
+                    <input type="number" id="liczba-pokoi" value="3" min="1" max="10">
+                </div>
+                <div class="form-group" id="powierzchnie-pokoi-container">
+                    <!-- Pola powierzchni pokoi będą generowane dynamicznie -->
+                </div>
+                <div class="form-group">
+                    <label for="typ-mieszkania">Typ mieszkania:</label>
+                    <select id="typ-mieszkania">
+                        <option value="parter">Parter</option>
+                        <option value="1_pietro">1 piętro</option>
+                        <option value="2_pietro">2 piętro</option>
+                        <option value="poddasze">Poddasze</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="tryb-powierzchni"> Użyj całkowitej powierzchni mieszkania
+                    </label>
+                </div>
+                <div class="form-group" id="calkowita-powierzchnia-container" style="display:none;">
+                    <label for="calkowita-powierzchnia">Całkowita powierzchnia mieszkania (m²):</label>
+                    <input type="number" id="calkowita-powierzchnia" value="64">
+                </div>
+                <div class="form-group">
+                    <label for="cena-za-m2">Cena za m² naprawy:</label>
+                    <input type="number" id="cena-za-m2" value="500">
+                </div>
+                <div id="stopnie-zalania-container"></div>
+                <div class="form-group">
+                    <label for="rodzaj-uszkodzen">Rodzaj uszkodzeń:</label>
+                    <select id="rodzaj-uszkodzen" multiple>
+                        <option value="sciana">Uszkodzenia ścian</option>
+                        <option value="podloga">Uszkodzenia podłogi</option>
+                        <option value="instalacja">Uszkodzenia instalacji elektrycznej</option>
+                        <option value="meble">Uszkodzenia mebli</option>
+                        <option value="sprzet">Uszkodzenia sprzętu AGD/RTV</option>
+                        <option value="okna_drzwi">Uszkodzenia okien i drzwi</option>
+                        <option value="strukturalne">Uszkodzenia strukturalne</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dodatkowe-koszty">Dodatkowe koszty:</label>
+                    <select id="dodatkowe-koszty" multiple>
+                        <option value="osuszanie">Osuszanie pomieszczeń</option>
+                        <option value="dezynfekcja">Dezynfekcja</option>
+                        <option value="wywoz">Wywóz odpadów</option>
+                        <option value="ekspertyza">Ekspertyza techniczna</option>
+                        <option value="projekt">Projekt remontu</option>
+                        <option value="nadzor">Nadzór budowlany</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <h3>Szacunkowy koszt naprawy: <span id="koszt-naprawy">0</span> zł</h3>
+                </div>
+                <a href="#" id="skontaktuj-sie" class="cta-button">Skontaktuj się z ekspertem</a>
+            </div>
+        </div>
+
+        <!-- Popup do podania adresu e-mail -->
+        <div id="email-popup" style="display:none;">
+            <div class="overlay">
+                <div class="card full-width">
+                    <h2>Dokończ wycenę</h2>
+                    <p>Aby uzyskać pełną wycenę, podaj swój adres e-mail.</p>
+                    <form id="email-form">
+                        <div class="form-group">
+                            <label for="email">E-mail:</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <button type="submit" class="cta-button">Wyślij</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pozostała część strony -->
+        <div class="container section">
+            <!-- Treść pozostaje bez zmian -->
+        </div>
     </div>
 
     <script>
-        // Dane obszarów mieszkania
-        const obszary = [
-            { id: 'pokoj1', nazwa: 'Pokój 1', points: "10,10 150,10 150,100 10,100", powierzchniaProcentowa: 0.31 },
-            { id: 'pokoj2', nazwa: 'Pokój 2', points: "160,10 300,10 300,100 160,100", powierzchniaProcentowa: 0.28 },
-            { id: 'kuchnia', nazwa: 'Kuchnia', points: "10,110 150,110 150,200 10,200", powierzchniaProcentowa: 0.19 },
-            { id: 'lazienka', nazwa: 'Łazienka', points: "160,110 300,110 300,200 160,200", powierzchniaProcentowa: 0.09 },
-            { id: 'przedpokoj', nazwa: 'Przedpokój', points: "10,210 300,210 300,250 10,250", powierzchniaProcentowa: 0.13 },
-        ];
+        // Dane domyślne
+        let obszary = [];
+        let zaznaczoneObszary = {};
+        let stopnieZalaniaObszarow = {};
+        let liczbaPokoi = parseInt(document.getElementById('liczba-pokoi').value);
 
         // Stopnie zalania
         const stopnieZalania = [
@@ -41,11 +136,28 @@
             nadzor: 800
         };
 
-        let zaznaczoneObszary = {};
-        let stopnieZalaniaObszarow = {};
+        function generateObszary() {
+            obszary = [];
+            const totalWidth = 300;
+            const roomWidth = totalWidth / liczbaPokoi;
+            for (let i = 0; i < liczbaPokoi; i++) {
+                const id = `pokoj${i+1}`;
+                const nazwa = `Pokój ${i+1}`;
+                const x = i * roomWidth + 10;
+                const points = `${x},10 ${x + roomWidth - 10},10 ${x + roomWidth - 10},100 ${x},100`;
+                obszary.push({ id, nazwa, points, powierzchnia: 20, powierzchniaProcentowa: 0.2 });
+            }
+            // Dodaj kuchnię i łazienkę
+            obszary.push(
+                { id: 'kuchnia', nazwa: 'Kuchnia', points: "10,110 150,110 150,200 10,200", powierzchnia: 12, powierzchniaProcentowa: 0.19 },
+                { id: 'lazienka', nazwa: 'Łazienka', points: "160,110 300,110 300,200 160,200", powierzchnia: 6, powierzchniaProcentowa: 0.09 },
+                { id: 'przedpokoj', nazwa: 'Przedpokój', points: "10,210 300,210 300,250 10,250", powierzchnia: 8, powierzchniaProcentowa: 0.13 }
+            );
+        }
 
         function initializeSVG() {
             const svg = document.getElementById('mieszkanie-svg');
+            svg.innerHTML = ''; // Wyczyść poprzednią zawartość
             obszary.forEach(obszar => {
                 const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
                 polygon.setAttribute('points', obszar.points);
@@ -70,6 +182,37 @@
             });
         }
 
+        function generatePowierzchniePokoi() {
+            const container = document.getElementById('powierzchnie-pokoi-container');
+            container.innerHTML = ''; // Wyczyść poprzednią zawartość
+            obszary.forEach(obszar => {
+                if (obszar.id.startsWith('pokoj')) {
+                    const div = document.createElement('div');
+                    div.setAttribute('class', 'form-group');
+                    const label = document.createElement('label');
+                    label.textContent = `Powierzchnia ${obszar.nazwa} (m²):`;
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = obszar.powierzchnia;
+                    input.oninput = function() {
+                        obszar.powierzchnia = parseFloat(this.value);
+                        obliczPowierzchnieProcentowe();
+                        obliczKoszt();
+                    };
+                    div.appendChild(label);
+                    div.appendChild(input);
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        function obliczPowierzchnieProcentowe() {
+            const totalPowierzchnia = obszary.reduce((acc, obszar) => acc + obszar.powierzchnia, 0);
+            obszary.forEach(obszar => {
+                obszar.powierzchniaProcentowa = obszar.powierzchnia / totalPowierzchnia;
+            });
+        }
+
         function toggleObszar(id) {
             const obszar = document.getElementById(id);
             if (zaznaczoneObszary[id]) {
@@ -89,4 +232,138 @@
         function createStopienZalaniaSelect(id) {
             const container = document.getElementById('stopnie-zalania-container');
             const div = document.createElement('div');
-            div.setAttribute('class', 'form
+            div.setAttribute('class', 'form-group');
+            div.setAttribute('id', `stopien-${id}`);
+
+            const label = document.createElement('label');
+            label.textContent = `Stopień zalania dla ${obszary.find(o => o.id === id).nazwa}:`;
+
+            const select = document.createElement('select');
+            select.setAttribute('id', `select-${id}`);
+            stopnieZalania.forEach(stopien => {
+                const option = document.createElement('option');
+                option.value = stopien.id;
+                option.textContent = stopien.nazwa;
+                select.appendChild(option);
+            });
+
+            stopnieZalaniaObszarow[id] = select.value;
+
+            select.onchange = function() {
+                stopnieZalaniaObszarow[id] = this.value;
+                obliczKoszt();
+            };
+
+            div.appendChild(label);
+            div.appendChild(select);
+            container.appendChild(div);
+        }
+
+        function obliczKoszt() {
+            const cenaZaM2 = parseFloat(document.getElementById('cena-za-m2').value);
+            let kosztNaprawy = 0;
+            const rodzajUszkodzen = Array.from(document.getElementById('rodzaj-uszkodzen').selectedOptions).map(opt => opt.value);
+            const dodatkoweKosztyWybrane = Array.from(document.getElementById('dodatkowe-koszty').selectedOptions).map(opt => opt.value);
+            const trybPowierzchni = document.getElementById('tryb-powierzchni').checked;
+            const typMieszkania = document.getElementById('typ-mieszkania').value;
+
+            let mnoznikPietra = 1;
+            if (typMieszkania === 'parter') mnoznikPietra = 1;
+            else if (typMieszkania === '1_pietro') mnoznikPietra = 0.7;
+            else if (typMieszkania === '2_pietro') mnoznikPietra = 0.5;
+            else if (typMieszkania === 'poddasze') mnoznikPietra = 0.3;
+
+            if (trybPowierzchni) {
+                const calkowitaPowierzchnia = parseFloat(document.getElementById('calkowita-powierzchnia').value);
+                let maxMnoznikZalania = 0;
+                Object.values(stopnieZalaniaObszarow).forEach(stopienId => {
+                    const mnoznik = stopnieZalania.find(s => s.id === stopienId).mnoznik;
+                    if (mnoznik > maxMnoznikZalania) maxMnoznikZalania = mnoznik;
+                });
+                kosztNaprawy = calkowitaPowierzchnia * cenaZaM2 * maxMnoznikZalania * mnoznikPietra;
+            } else {
+                for (let id in zaznaczoneObszary) {
+                    const stopienZalaniaId = stopnieZalaniaObszarow[id];
+                    const stopienZalania = stopnieZalania.find(s => s.id === stopienZalaniaId).mnoznik;
+                    const obszar = obszary.find(o => o.id === id);
+                    kosztNaprawy += obszar.powierzchnia * cenaZaM2 * stopienZalania * mnoznikPietra;
+                }
+            }
+
+            // Dodaj koszty uszkodzeń
+            rodzajUszkodzen.forEach(uszkodzenie => {
+                if (uszkodzenie === 'instalacja') kosztNaprawy += 2000 * mnoznikPietra;
+                if (uszkodzenie === 'meble') kosztNaprawy += 3000 * mnoznikPietra;
+                if (uszkodzenie === 'sprzet') kosztNaprawy += 4000 * mnoznikPietra;
+                if (uszkodzenie === 'okna_drzwi') kosztNaprawy += 2500 * mnoznikPietra;
+                if (uszkodzenie === 'strukturalne') kosztNaprawy += 5000 * mnoznikPietra;
+            });
+
+            // Dodaj dodatkowe koszty
+            dodatkoweKosztyWybrane.forEach(koszt => {
+                kosztNaprawy += dodatkoweKoszty[koszt] * mnoznikPietra;
+            });
+
+            document.getElementById('koszt-naprawy').textContent = kosztNaprawy.toFixed(2);
+
+            // Wywołaj popup po osiągnięciu pewnej kwoty
+            if (kosztNaprawy > 0 && !localStorage.getItem('emailSubmitted')) {
+                showEmailPopup();
+            }
+        }
+
+        function showEmailPopup() {
+            const popup = document.getElementById('email-popup');
+            popup.style.display = 'block';
+        }
+
+        document.getElementById('email-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            // Tutaj możesz dodać kod do wysłania e-maila na serwer
+            localStorage.setItem('emailSubmitted', 'true');
+            document.getElementById('email-popup').style.display = 'none';
+        });
+
+        document.getElementById('liczba-pokoi').addEventListener('input', function() {
+            liczbaPokoi = parseInt(this.value);
+            generateObszary();
+            initializeSVG();
+            generatePowierzchniePokoi();
+            obliczPowierzchnieProcentowe();
+            obliczKoszt();
+        });
+
+        document.getElementById('tryb-powierzchni').addEventListener('change', function() {
+            const calkowitaContainer = document.getElementById('calkowita-powierzchnia-container');
+            if (this.checked) {
+                calkowitaContainer.style.display = 'block';
+            } else {
+                calkowitaContainer.style.display = 'none';
+            }
+            obliczKoszt();
+        });
+
+        document.getElementById('cena-za-m2').addEventListener('input', obliczKoszt);
+        document.getElementById('calkowita-powierzchnia').addEventListener('input', obliczKoszt);
+        document.getElementById('rodzaj-uszkodzen').addEventListener('change', obliczKoszt);
+        document.getElementById('dodatkowe-koszty').addEventListener('change', obliczKoszt);
+        document.getElementById('typ-mieszkania').addEventListener('change', obliczKoszt);
+
+        // Inicjalizacja
+        generateObszary();
+        initializeSVG();
+        generatePowierzchniePokoi();
+        obliczPowierzchnieProcentowe();
+        obliczKoszt();
+
+        // Wymuszenie podania e-maila po pewnym czasie (np. 30 sekund)
+        setTimeout(function() {
+            if (!localStorage.getItem('emailSubmitted')) {
+                showEmailPopup();
+            }
+        }, 30000); // 30 sekund
+
+    </script>
+</body>
+</html>
