@@ -5,93 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Szkód Powodziowych</title>
     <style>
-        body, html {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8Zmxvb2R8fHx8fHwxNjk1MTQwNjA5&ixlib=rb-4.0.3&q=80&w=1080') no-repeat center center fixed;
-            background-size: cover;
-        }
-        .overlay {
-            background-color: rgba(0, 0, 0, 0.7);
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 20px;
-            flex: 1 1 45%;
-            min-width: 300px;
-        }
-        h1 {
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        h2 {
-            margin-top: 0;
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        input[type="number"], select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        input[type="checkbox"] {
-            margin-right: 10px;
-        }
-        svg {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ddd;
-            background-color: #ffffff;
-        }
-        polygon {
-            cursor: pointer;
-            transition: fill 0.3s;
-        }
-        polygon:hover {
-            opacity: 0.8;
-        }
-        #koszt-naprawy {
-            font-weight: bold;
-            color: #007bff;
-        }
-        @media (max-width: 768px) {
-            .card {
-                flex: 1 1 100%;
-            }
-        }
+        /* Tutaj umieść style CSS z poprzedniej wersji */
     </style>
 </head>
 <body>
@@ -126,8 +40,127 @@
     </div>
 
     <script>
-        // Tutaj umieść cały JavaScript z poprzedniej wersji
-        // ...
+        const obszary = [
+            { id: 'pokoj1', nazwa: 'Pokój 1', points: "10,10 150,10 150,100 10,100", powierzchnia: 20, powierzchniaProcentowa: 0.31 },
+            { id: 'pokoj2', nazwa: 'Pokój 2', points: "160,10 300,10 300,100 160,100", powierzchnia: 18, powierzchniaProcentowa: 0.28 },
+            { id: 'kuchnia', nazwa: 'Kuchnia', points: "10,110 150,110 150,200 10,200", powierzchnia: 12, powierzchniaProcentowa: 0.19 },
+            { id: 'lazienka', nazwa: 'Łazienka', points: "160,110 300,110 300,200 160,200", powierzchnia: 6, powierzchniaProcentowa: 0.09 },
+            { id: 'przedpokoj', nazwa: 'Przedpokój', points: "10,210 300,210 300,250 10,250", powierzchnia: 8, powierzchniaProcentowa: 0.13 },
+        ];
+
+        const stopnieZalania = [
+            { id: 'brak', nazwa: 'Brak zalania', mnoznik: 0 },
+            { id: 'lekkie', nazwa: 'Lekkie zalanie', mnoznik: 0.3 },
+            { id: 'umiarkowane', nazwa: 'Umiarkowane zalanie', mnoznik: 0.6 },
+            { id: 'ciezkie', nazwa: 'Ciężkie zalanie', mnoznik: 1 },
+        ];
+
+        let zaznaczoneObszary = {};
+        let stopnieZalaniaObszarow = {};
+
+        function initializeSVG() {
+            const svg = document.getElementById('mieszkanie-svg');
+            obszary.forEach(obszar => {
+                const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                polygon.setAttribute('points', obszar.points);
+                polygon.setAttribute('fill', 'white');
+                polygon.setAttribute('stroke', 'black');
+                polygon.setAttribute('stroke-width', '2');
+                polygon.onclick = () => toggleObszar(obszar.id);
+                svg.appendChild(polygon);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                const [x, y] = obszar.points.split(' ')[0].split(',');
+                text.setAttribute('x', x);
+                text.setAttribute('y', y);
+                text.setAttribute('dy', '20');
+                text.setAttribute('dx', '5');
+                text.setAttribute('font-size', '12');
+                text.textContent = `${obszar.nazwa} (${obszar.powierzchnia} m²)`;
+                svg.appendChild(text);
+            });
+        }
+
+        function toggleObszar(id) {
+            zaznaczoneObszary[id] = !zaznaczoneObszary[id];
+            if (zaznaczoneObszary[id]) {
+                stopnieZalaniaObszarow[id] = 'lekkie';
+            } else {
+                delete stopnieZalaniaObszarow[id];
+            }
+            updateSVG();
+            updateStopnieZalania();
+            obliczKoszt();
+        }
+
+        function updateSVG() {
+            obszary.forEach(obszar => {
+                const polygon = document.querySelector(`polygon[points="${obszar.points}"]`);
+                polygon.setAttribute('fill', zaznaczoneObszary[obszar.id] ? 'red' : 'white');
+            });
+        }
+
+        function updateStopnieZalania() {
+            const container = document.getElementById('stopnie-zalania-container');
+            container.innerHTML = '';
+            Object.keys(zaznaczoneObszary).forEach(id => {
+                if (zaznaczoneObszary[id]) {
+                    const obszar = obszary.find(o => o.id === id);
+                    const div = document.createElement('div');
+                    div.className = 'form-group';
+                    div.innerHTML = `
+                        <label for="stopien-${id}">${obszar.nazwa} - Stopień zalania:</label>
+                        <select id="stopien-${id}" onchange="zmienStopienZalania('${id}', this.value)">
+                            ${stopnieZalania.map(stopien => 
+                                `<option value="${stopien.id}" ${stopnieZalaniaObszarow[id] === stopien.id ? 'selected' : ''}>
+                                    ${stopien.nazwa}
+                                </option>`
+                            ).join('')}
+                        </select>
+                    `;
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        function zmienStopienZalania(id, stopien) {
+            stopnieZalaniaObszarow[id] = stopien;
+            obliczKoszt();
+        }
+
+        function obliczKoszt() {
+            const uzywaCalkowitejPowierzchni = document.getElementById('tryb-powierzchni').checked;
+            const calkowitaPowierzchnia = parseFloat(document.getElementById('calkowita-powierzchnia').value);
+            const cenaZaM2 = parseFloat(document.getElementById('cena-za-m2').value);
+
+            const koszt = obszary.reduce((suma, obszar) => {
+                if (zaznaczoneObszary[obszar.id]) {
+                    const stopien = stopnieZalaniaObszarow[obszar.id];
+                    const mnoznik = stopnieZalania.find(s => s.id === stopien).mnoznik;
+                    const powierzchnia = uzywaCalkowitejPowierzchni
+                        ? calkowitaPowierzchnia * obszar.powierzchniaProcentowa
+                        : obszar.powierzchnia;
+                    return suma + (powierzchnia * cenaZaM2 * mnoznik);
+                }
+                return suma;
+            }, 0);
+
+            document.getElementById('koszt-naprawy').textContent = koszt.toFixed(2);
+        }
+
+        document.getElementById('tryb-powierzchni').onchange = function() {
+            document.getElementById('calkowita-powierzchnia-container').style.display = 
+                this.checked ? 'block' : 'none';
+            updateSVG();
+            obliczKoszt();
+        };
+
+        document.getElementById('calkowita-powierzchnia').oninput = obliczKoszt;
+        document.getElementById('cena-za-m2').oninput = obliczKoszt;
+
+        // Inicjalizacja
+        initializeSVG();
+        obliczKoszt();
     </script>
 </body>
 </html>
