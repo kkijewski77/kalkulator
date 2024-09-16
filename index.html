@@ -5,12 +5,176 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Szkód Powodziowych - Sprawdź wycenę ubezpieczyciela</title>
     <style>
-        /* ... (Style pozostają bez zmian) ... */
+        body, html {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            background: url('https://images.unsplash.com/photo-1613294326794-e7c74fe886e2?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=MnwxfDB8MXxyYW5kb218MHx8Zmxvb2R8fHx8fHwxNjk1NTQ1MjIy&amp;ixlib=rb-4.0.3&amp;q=80&amp;w=1080') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            flex: 1 1 45%;
+            min-width: 300px;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #007bff;
+            margin-top: 20px;
+        }
+        h4 {
+            color: #333;
+            margin-top: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="number"], select, textarea, input[type="email"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        svg {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            background-color: #ffffff;
+        }
+        polygon {
+            cursor: pointer;
+            transition: fill 0.3s;
+        }
+        polygon:hover {
+            opacity: 0.8;
+        }
+        #koszt-naprawy {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px 25px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+        .full-width {
+            flex: 1 1 100%;
+        }
+        .section {
+            margin-top: 40px;
+        }
+        p {
+            color: #fff;
+            font-size: 1.1em;
+        }
+        ul {
+            color: #fff;
+            font-size: 1.1em;
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        @media (max-width: 768px) {
+            .card {
+                flex: 1 1 100%;
+            }
+        }
+        /* Styl dla popupu */
+        #email-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        #email-popup .overlay {
+            background-color: transparent;
+        }
+        /* Dodatkowe stylizacje */
+        .important-info {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .emergency-numbers {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="overlay">
-        <!-- ... (Treść HTML pozostaje bez zmian do sekcji kalkulatora) ... -->
+        <h1>Kalkulator Szkód Powodziowych</h1>
+        <p>Sprawdź, czy wycena Twojego ubezpieczyciela nie jest zaniżona</p>
+        <a href="#kalkulator" class="cta-button">Przejdź do kalkulatora</a>
+        
+        <div class="container section">
+            <div class="card full-width">
+                <h2>Jak działa nasz kalkulator?</h2>
+                <p>Nasz kalkulator pozwala oszacować koszty naprawy mieszkania po powodzi, uwzględniając różne czynniki, takie jak stopień zalania, rodzaj uszkodzeń oraz dodatkowe koszty.</p>
+            </div>
+        </div>
 
         <div class="container section" id="kalkulator">
             <div class="card">
@@ -19,7 +183,36 @@
             </div>
             <div class="card">
                 <h2>Kalkulator szkód</h2>
-                <!-- ... (Pola formularza pozostają bez zmian) ... -->
+                <div class="form-group">
+                    <label for="liczba-pokoi">Liczba pokoi (max 5):</label>
+                    <input type="number" id="liczba-pokoi" value="3" min="1" max="5">
+                </div>
+                <div class="form-group" id="powierzchnie-pokoi-container">
+                    <!-- Pola powierzchni pokoi będą generowane dynamicznie -->
+                </div>
+                <div class="form-group">
+                    <label for="typ-mieszkania">Typ mieszkania:</label>
+                    <select id="typ-mieszkania">
+                        <option value="parter">Parter</option>
+                        <option value="1_pietro">1 piętro</option>
+                        <option value="2_pietro">2 piętro</option>
+                        <option value="poddasze">Poddasze</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="tryb-powierzchni"> Użyj całkowitej powierzchni mieszkania
+                    </label>
+                </div>
+                <div class="form-group" id="calkowita-powierzchnia-container" style="display:none;">
+                    <label for="calkowita-powierzchnia">Całkowita powierzchnia mieszkania (m²):</label>
+                    <input type="number" id="calkowita-powierzchnia" value="64">
+                </div>
+                <div class="form-group">
+                    <label for="cena-za-m2">Cena za m² naprawy:</label>
+                    <input type="number" id="cena-za-m2" value="500">
+                </div>
+                <div id="stopnie-zalania-container"></div>
                 <div class="form-group">
                     <label for="rodzaj-uszkodzen">Rodzaj uszkodzeń:</label>
                     <div id="rodzaj-uszkodzen">
@@ -32,7 +225,17 @@
                         <label><input type="checkbox" value="strukturalne"> Uszkodzenia strukturalne</label>
                     </div>
                 </div>
-                <!-- ... (Reszta formularza pozostaje bez zmian) ... -->
+                <div class="form-group">
+                    <label for="dodatkowe-koszty">Dodatkowe koszty:</label>
+                    <div id="dodatkowe-koszty">
+                        <label><input type="checkbox" value="osuszanie"> Osuszanie pomieszczeń</label><br>
+                        <label><input type="checkbox" value="dezynfekcja"> Dezynfekcja</label><br>
+                        <label><input type="checkbox" value="wywoz"> Wywóz odpadów</label><br>
+                        <label><input type="checkbox" value="ekspertyza"> Ekspertyza techniczna</label><br>
+                        <label><input type="checkbox" value="projekt"> Projekt remontu</label><br>
+                        <label><input type="checkbox" value="nadzor"> Nadzór budowlany</label>
+                    </div>
+                </div>
                 <div class="form-group">
                     <h3>Szacunkowy koszt naprawy: <span id="koszt-naprawy">0</span> zł</h3>
                 </div>
@@ -40,7 +243,82 @@
             </div>
         </div>
 
-        <!-- ... (Reszta strony pozostaje bez zmian) ... -->
+        <!-- Popup do podania adresu e-mail -->
+        <div id="email-popup">
+            <div class="overlay">
+                <div class="card full-width">
+                    <h2>Dokończ wycenę</h2>
+                    <p>Aby uzyskać pełną wycenę, podaj swój adres e-mail.</p>
+                    <form id="email-form">
+                        <div class="form-group">
+                            <label for="email">E-mail:</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <button type="submit" class="cta-button">Wyślij</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sekcja z ważnymi informacjami -->
+        <div class="container section">
+            <div class="card full-width">
+                <h2>Ważne informacje dla poszkodowanych</h2>
+                <div class="important-info">
+                    <h4>Co zrobić po powodzi?</h4>
+                    <ul>
+                        <li>Nie wchodź do budynku, jeśli nie jest to bezpieczne.</li>
+                        <li>Odłącz zasilanie elektryczne przed wejściem.</li>
+                        <li>Zrób dokumentację zdjęciową uszkodzeń.</li>
+                        <li>Skontaktuj się z ubezpieczycielem jak najszybciej.</li>
+                    </ul>
+                </div>
+                <div class="emergency-numbers">
+                    <h4>Numery alarmowe</h4>
+                    <ul>
+                        <li><strong>112</strong> - Numer alarmowy</li>
+                        <li><strong>997</strong> - Policja</li>
+                        <li><strong>998</strong> - Straż Pożarna</li>
+                        <li><strong>999</strong> - Pogotowie Ratunkowe</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sekcja kontaktu -->
+        <div class="container section" id="kontakt">
+            <div class="card full-width">
+                <h2>Skontaktuj się z nami</h2>
+                <p>Jeśli masz pytania lub potrzebujesz pomocy w procesie odszkodowawczym, nasi eksperci są do Twojej dyspozycji.</p>
+                <form>
+                    <div class="form-group">
+                        <label for="imie">Imię:</label>
+                        <input type="text" id="imie" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email-kontakt">E-mail:</label>
+                        <input type="email" id="email-kontakt" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wiadomosc">Wiadomość:</label>
+                        <textarea id="wiadomosc" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="cta-button">Wyślij wiadomość</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sekcja FAQ -->
+        <div class="container section">
+            <div class="card full-width">
+                <h2>Najczęściej zadawane pytania</h2>
+                <h3>Jak dokładny jest kalkulator?</h3>
+                <p>Nasz kalkulator dostarcza szacunkowej wyceny kosztów naprawy, jednak ostateczna cena może różnić się w zależności od indywidualnych warunków.</p>
+                <h3>Czy mogę użyć wyceny w negocjacjach z ubezpieczycielem?</h3>
+                <p>Tak, wycena może być pomocna w rozmowach z ubezpieczycielem, aby upewnić się, że otrzymasz sprawiedliwe odszkodowanie.</p>
+                <!-- Dodaj więcej pytań i odpowiedzi w razie potrzeby -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -207,7 +485,7 @@
             const cenaZaM2 = parseFloat(document.getElementById('cena-za-m2').value);
             let kosztNaprawy = 0;
             const rodzajUszkodzen = Array.from(document.querySelectorAll('#rodzaj-uszkodzen input[type="checkbox"]:checked')).map(input => input.value);
-            const dodatkoweKosztyWybrane = Array.from(document.getElementById('dodatkowe-koszty').selectedOptions).map(opt => opt.value);
+            const dodatkoweKosztyWybrane = Array.from(document.querySelectorAll('#dodatkowe-koszty input[type="checkbox"]:checked')).map(input => input.value);
             const trybPowierzchni = document.getElementById('tryb-powierzchni').checked;
             const typMieszkania = document.getElementById('typ-mieszkania').value;
 
@@ -272,6 +550,12 @@
         });
 
         document.getElementById('liczba-pokoi').addEventListener('input', function() {
+            if (this.value > 5) {
+                alert('Maksymalna liczba pokoi to 5');
+                this.value = 5;
+            } else if (this.value < 1) {
+                this.value = 1;
+            }
             liczbaPokoi = parseInt(this.value);
             generateObszary();
             initializeSVG();
@@ -313,10 +597,12 @@
             });
         });
 
-        // Dodajemy nasłuchiwacz dla "Dodatkowe koszty"
-        document.getElementById('dodatkowe-koszty').addEventListener('change', function() {
-            obliczKoszt();
-            resetInteractionTimer();
+        // Dodajemy nasłuchiwacze dla checkboxów "Dodatkowe koszty"
+        document.querySelectorAll('#dodatkowe-koszty input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                obliczKoszt();
+                resetInteractionTimer();
+            });
         });
 
         // Inicjalizacja
